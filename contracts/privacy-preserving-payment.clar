@@ -34,3 +34,13 @@
 ;; - Privacy-sensitive financial transactions
 ;; - Secure value transfer on Bitcoin layer
 ;;-----------------------------------------------------------------
+
+;; Error constants for precise transaction failure reporting
+(define-constant ERR-INSUFFICIENT-FUNDS (err u1))
+(define-constant ERR-INVALID-PROOF (err u2))
+(define-constant ERR-ALREADY-CLAIMED (err u3))
+(define-constant ERR-UNAUTHORIZED (err u4))
+(define-constant ERR-INVALID-AMOUNT (err u5))
+(define-constant ERR-INVALID-COMMITMENT-HASH (err u6))
+(define-constant ERR-INVALID-NULLIFIER (err u7))
+
