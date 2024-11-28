@@ -65,7 +65,6 @@
   bool
 )
 
-
 ;; Verify zero-knowledge proof for private transactions
 (define-private (verify-zk-proof 
   (proof (buff 256))
