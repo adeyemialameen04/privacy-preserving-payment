@@ -44,3 +44,24 @@
 (define-constant ERR-INVALID-COMMITMENT-HASH (err u6))
 (define-constant ERR-INVALID-NULLIFIER (err u7))
 
+;; Track private transaction commitments
+(define-map TransactionCommitments
+  {
+    sender: principal,
+    commitment-hash: (buff 32)
+  }
+  {
+    amount: uint,
+    recipient: (optional principal),
+    claimed: bool
+  }
+)
+
+;; Prevent transaction replay attacks
+(define-map Nullifiers 
+  {
+    nullifier: (buff 32)
+  }
+  bool
+)
+
