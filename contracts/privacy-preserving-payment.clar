@@ -88,3 +88,55 @@
 (define-private (valid-nullifier? (nullifier (buff 32)))
   (is-eq (len nullifier) u32)
 )
+
+
+;; Create a private transaction commitment
+(define-public (create-private-transaction 
+  (commitment-hash (buff 32))
+  (amount uint)
+  (recipient (optional principal))
+)
+  (begin
+    ;; Validate commitment hash
+    (asserts! (valid-commitment-hash? commitment-hash) ERR-INVALID-COMMITMENT-HASH)
+    
+    ;; Validate amount is positive
+    (asserts! (> amount u0) ERR-INVALID-AMOUNT)
+    
+    ;; Validate recipient if specified
+    (asserts! 
+      (or 
+        (is-none recipient) 
+        (and 
+          (is-some recipient) 
+          (not (is-eq (unwrap-panic recipient) tx-sender))
+        )
+      ) 
+      ERR-UNAUTHORIZED
+    )
+    
+    ;; Check sender has sufficient balance
+    (asserts! 
+      (>= (stx-get-balance tx-sender) amount) 
+      ERR-INSUFFICIENT-FUNDS
+    )
+    
+    ;; Lock the committed funds
+    (try! (stx-transfer? amount tx-sender (as-contract tx-sender)))
+    
+    ;; Store the transaction commitment
+    (map-set TransactionCommitments
+      {
+        sender: tx-sender,
+        commitment-hash: commitment-hash
+      }
+      {
+        amount: amount,
+        recipient: recipient,
+        claimed: false
+      }
+    )
+    
+    (ok true)
+  )
+)
