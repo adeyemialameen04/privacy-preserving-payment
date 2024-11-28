@@ -1,15 +1,36 @@
+;;-----------------------------------------------------------------
+;; title: Privacy-Preserving Payment Protocol
+;;-----------------------------------------------------------------
 
-;; privacy-preserving-payment
-;; <add a description here>
+;; summary: A Stacks-based private payment system leveraging zero-knowledge proofs 
+;; and Bitcoin settlement for secure, anonymous transactions
 
-;; constants
+;;-----------------------------------------------------------------
+;; description: 
+;; Implements a privacy-focused payment protocol with:
+;; - Zero-knowledge proof-based transaction verification
+;; - Commitment-based transaction model
+;; - Double-spending prevention 
+;; - Flexible transaction routing
+;; - Comprehensive error handling
+;; - Secure fund management
 ;;
-
-;; data maps and vars
+;; Key Features:
+;; - Private transaction creation
+;; - Proof-based transaction claiming
+;; - Nullifier mechanism to prevent replay attacks
+;; - Optional recipient specification
+;; - Fallback STX receiving
 ;;
-
-;; private functions
+;; Security Considerations:
+;; - Validates transaction amounts
+;; - Checks sender balance
+;; - Implements strict access controls
+;; - Uses commitment-based architecture
+;; - Provides granular error reporting
 ;;
-
-;; public functions
-;;
+;; Use Cases:
+;; - Confidential payments
+;; - Privacy-sensitive financial transactions
+;; - Secure value transfer on Bitcoin layer
+;;-----------------------------------------------------------------
