@@ -140,3 +140,96 @@
     (ok true)
   )
 )
+
+
+;; Claim a private transaction using a zero-knowledge proof
+(define-public (claim-private-transaction
+  (commitment-hash (buff 32))
+  (proof (buff 256))
+  (nullifier (buff 32))
+)
+  (let 
+    (
+      (commitment 
+        (unwrap! 
+          (map-get? TransactionCommitments 
+            {
+              sender: tx-sender,
+              commitment-hash: commitment-hash
+            }
+          )
+          ERR-UNAUTHORIZED
+        )
+      )
+    )
+    
+    ;; Validate commitment hash
+    (asserts! (valid-commitment-hash? commitment-hash) ERR-INVALID-COMMITMENT-HASH)
+    
+    ;; Validate nullifier
+    (asserts! (valid-nullifier? nullifier) ERR-INVALID-NULLIFIER)
+    
+    ;; Prevent double-spending by checking nullifier
+    (asserts! 
+      (is-none (map-get? Nullifiers {nullifier: nullifier}))
+      ERR-ALREADY-CLAIMED
+    )
+    
+    ;; Verify zero-knowledge proof
+    (asserts! 
+      (verify-zk-proof 
+        proof 
+        tx-sender 
+        (get amount commitment) 
+        (get recipient commitment)
+      )
+      ERR-INVALID-PROOF
+    )
+    
+    ;; Mark nullifier as used
+    (map-set Nullifiers {nullifier: nullifier} true)
+    
+    ;; Transfer funds if recipient is specified
+    (if (is-some (get recipient commitment))
+        (try! 
+          (as-contract 
+            (stx-transfer? 
+              (get amount commitment)
+              (as-contract tx-sender)
+              (unwrap! (get recipient commitment) ERR-UNAUTHORIZED)
+            )
+          )
+        )
+        ;; If no recipient, return funds to original sender
+        (try! 
+          (as-contract 
+            (stx-transfer? 
+              (get amount commitment)
+              (as-contract tx-sender)
+              tx-sender
+            )
+          )
+        )
+    )
+    
+    ;; Mark commitment as claimed
+    (map-set TransactionCommitments
+      {
+        sender: tx-sender,
+        commitment-hash: commitment-hash
+      }
+      {
+        amount: (get amount commitment),
+        recipient: (get recipient commitment),
+        claimed: true
+      }
+    )
+    
+    (ok true)
+  )
+)
+
+;; Fallback function to allow contract to receive STX
+(define-public (receive-stx)
+  (ok true)
+)
